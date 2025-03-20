@@ -25,7 +25,7 @@ int main(){
 	Sprite spriteBackground;
 	spriteBackground.setTexture(textureBackground);		//pastes it on the bg like a sticke
 	spriteBackground.setPosition(0,0);
-	
+	\
 	Texture textureTree;
 	textureTree.loadFromFile("graphics/tree.png");
 	Sprite spriteTree;
@@ -176,12 +176,20 @@ int main(){
 			score++;
 			spriteAxe.setPosition(AXE_POSITION_RIGHT, spriteAxe.getPosition().y);
 			spriteplayer.setPosition(1200,720);
+			spriteLog.setPosition(810,720);
+			logSpeedX = -5000;
+			logActive = true;
+			acceptInput = false;
 		}
 		if(Keyboard::isKeyPressed(Keyboard::Left)){
 			playerSide = side::LEFT;
 			score++;
 			spriteAxe.setPosition(AXE_POSITION_LEFT, spriteAxe.getPosition().y);
 			spriteplayer.setPosition(580,720);
+			spriteLog.setPosition(810,720);
+			logSpeedX = 5000;
+			logActive = true;
+			acceptInput = false;
 		}
 	}
 	
