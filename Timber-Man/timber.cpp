@@ -38,6 +38,35 @@ int main(){
 	spriteBee.setTexture(textureBee);
 	spriteBee.setPosition(0,800);
 
+	Texture textureplayer;
+	textureplayer.loadFromFile("graphics/player.png");
+	Sprite spriteplayer;
+	spriteplayer.setTexture(textureplayer);
+	spriteplayer.setPosition(580,720);
+	
+	side playerSide=side::LEFT;     //the player will move left nd right ,initially placing it at left
+	
+	Texture textureAxe;
+	textureAxe.loadFromFile("graphics/axe.png");
+	Sprite spriteAxe;
+	spriteAxe.setTexture(textureAxe);
+	spriteAxe.setPosition(700,830);
+	
+	const float AXE_POSITION_LEFT = 700;
+	const float AXE_POSITION_RIGHT =1075;
+	
+	Texture textureRip;
+	textureRip.loadFromFile("graphics/rip.png");
+	Sprite spriteRip;
+	spriteRip.setTexture(textureRip);
+	spriteRip.setPosition(600,860);
+	
+	Texture textureLog;
+	textureLog.loadFromFile("graphics/log.png");
+	Sprite spriteLog;
+	spriteLog.setTexture(textureLog);
+	spriteLog.setPosition(810,720);
+
 
 	bool beeActive= false;
     	float beeSpeed= 0.0f;
@@ -106,15 +135,29 @@ int main(){
 		branches[i].setOrigin(0,0);
 	}
 	
+	bool logActive = false;
+	float logSpeedX = 1000;
+	float logSpeedY = -1500;
+	bool acceptInput = false;
 	
 	//gaming loop
 	
 	while(window.isOpen()){
 	Event event;
 	while(window.pollEvent(event)){
-	if(event.type == Event::Closed){		 // ensures window stays open until close button pressed
-	window.close();
+		if(event.type == Event :: KeyReleased && !paused){
+			//Listen for key press again
+			acceptInput = true;
+			
+			//hide thr axe
+			spriteAxe.setPosition(2000,spriteAxe.getPosition().y);
+		}
 	}
+	Event event1;
+	while(window.pollEvent(event1)){
+		if(event1.type == event1.Closed){		 // ensures window stays open until close button pressed
+			window.close();
+		}
 	}
 	
 	if(Keyboard::isKeyPressed(Keyboard::Escape)){		// exits games on clicking escape
@@ -127,7 +170,23 @@ int main(){
 		timeRemaining = 5;
 	}
 	
-	Time dt = clock.restart();
+	if(acceptInput){
+		if(Keyboard::isKeyPressed(Keyboard::Right)){
+			playerSide = side::RIGHT;
+			score++;
+			spriteAxe.setPosition(AXE_POSITION_RIGHT, spriteAxe.getPosition().y);
+			spriteplayer.setPosition(1200,720);
+		}
+		if(Keyboard::isKeyPressed(Keyboard::Left)){
+			playerSide = side::LEFT;
+			score++;
+			spriteAxe.setPosition(AXE_POSITION_LEFT, spriteAxe.getPosition().y);
+			spriteplayer.setPosition(580,720);
+		}
+	}
+	
+	
+	Time dt = clock.restart();// dt is an obj of class Time
 	
 	if(!paused){
 		timeRemaining -= dt.asSeconds();
@@ -251,10 +310,14 @@ int main(){
 	window.draw(spriteCloud1);
 	window.draw(spriteCloud2);
 	window.draw(spriteCloud3);
-	window.draw(spriteTree);
 	for(int i=0; i<NUM_BRANCHES ;i++){
 	window.draw(branches[i]);
 	}
+	window.draw(spriteplayer);
+	window.draw(spriteTree);
+	window.draw(spriteLog);
+	window.draw(spriteAxe);
+	window.draw(spriteRip);
 	window.draw(spriteBee);
 	window.draw(timeBar);
 	if(paused){
@@ -287,6 +350,5 @@ void updateBranches(int seed)
 		break;
 		default:
 		branchPositions[0] = side::NONE;
-	}
-	
+	}	
 }
