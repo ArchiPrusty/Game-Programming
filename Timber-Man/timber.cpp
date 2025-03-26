@@ -1,4 +1,8 @@
 #include<SFML/Graphics.hpp>
+#include<iostream>
+#include<sstream>
+#include<stdlib.h>
+
 using namespace sf;
 
 void updateBranches(int seed);
@@ -108,7 +112,7 @@ int main(){
 	Text messageText;
 	Text scoreText;
 	
-	Font font;
+	Font font;  				 //font -----> object
 	font.loadFromFile("font/KOMIKAP_.ttf");
 	messageText.setFont(font);
 	scoreText.setFont(font);
@@ -140,17 +144,26 @@ int main(){
 	float logSpeedY = -1500;
 	bool acceptInput = false;
 	
+	      
+	//placing branches in the game
+	updateBranches(1);
+	updateBranches(2);
+	updateBranches(3);
+	updateBranches(4);
+	updateBranches(5);
+		
+		 
 	//gaming loop
 	
 	while(window.isOpen()){
-	Event event;
-	while(window.pollEvent(event)){
-		if(event.type == Event :: KeyReleased && !paused){
-			//Listen for key press again
-			acceptInput = true;
+		Event event;
+		while(window.pollEvent(event)){
+			if(event.type == Event :: KeyReleased && !paused){
+				//Listen for key press again
+				acceptInput = true;
 			
-			//hide thr axe
-			spriteAxe.setPosition(2000,spriteAxe.getPosition().y);
+				//hide thr axe
+				spriteAxe.setPosition(2000,spriteAxe.getPosition().y);
 		}
 	}
 	Event event1;
@@ -168,14 +181,29 @@ int main(){
 		paused = false;
 		score = 0;
 		timeRemaining = 5;
+		
+		//Make all the branch dissapear
+		for(int i=1 ; i<NUM_BRANCHES ; i++){
+			branchPositions[i]=side::NONE;
+		}
+		
+		//Make sure gravestone is hidden	
+		spriteRip.setPosition(-2000,860);
+		
+		//MOve the player into position
+		spriteplayer.setPosition(580,720);
+		
+		acceptInput = true;
 	}
 	
 	if(acceptInput){
 		if(Keyboard::isKeyPressed(Keyboard::Right)){
 			playerSide = side::RIGHT;
 			score++;
+			timeRemaining += (2/score) + .15;
 			spriteAxe.setPosition(AXE_POSITION_RIGHT, spriteAxe.getPosition().y);
 			spriteplayer.setPosition(1200,720);
+			updateBranches(score);
 			spriteLog.setPosition(810,720);
 			logSpeedX = -5000;
 			logActive = true;
@@ -184,8 +212,10 @@ int main(){
 		if(Keyboard::isKeyPressed(Keyboard::Left)){
 			playerSide = side::LEFT;
 			score++;
+			timeRemaining += (2/score) + .15;
 			spriteAxe.setPosition(AXE_POSITION_LEFT, spriteAxe.getPosition().y);
 			spriteplayer.setPosition(580,720);
+			updateBranches(score);
 			spriteLog.setPosition(810,720);
 			logSpeedX = 5000;
 			logActive = true;
@@ -193,8 +223,18 @@ int main(){
 		}
 	}
 	
-	
 	Time dt = clock.restart();// dt is an obj of class Time
+	
+	//log movement
+	if(logActive){
+		spriteLog.setPosition(spriteLog.getPosition().x + (logSpeedX * dt.asSeconds()), 
+				     spriteLog.getPosition().y - (logSpeedY * dt.asSeconds()));
+	        if(spriteLog.getPosition().x<-100 || spriteLog.getPosition().x>2000){
+	        	logActive = false;
+	        	spriteLog.setPosition(810,720);
+	        }
+	}
+	
 	
 	if(!paused){
 		timeRemaining -= dt.asSeconds();
@@ -207,7 +247,7 @@ int main(){
 			messageText.setPosition(960 , 540);
 			paused = true;
 		}
-		
+	
             if(!beeActive)
             {
             	srand((int)time(0));			//srand for generating within a 'fraction of second'
@@ -282,13 +322,11 @@ int main(){
             	{
             		cloud3Active=false;
             	}
-            }
-            
-            updateBranches(1);
-            updateBranches(2);
-            updateBranches(3);
-            updateBranches(4);
-            updateBranches(5);
+            	
+            	 std::stringstream ss;
+            	 ss<<"Score = " << score;
+            	 scoreText.setString(ss.str());
+      
             
             //placed branches in game
             for(int i=0; i<NUM_BRANCHES; i++)
@@ -311,6 +349,25 @@ int main(){
             		branches[i].setPosition(3000,height);
             	}
             }
+            
+            if( branchPositions[5] == playerSide){
+            	paused = true;
+            	acceptInput = false;
+            	
+            	//draw the gravestone
+            	spriteRip.setPosition(525,760);
+            	
+            	//hide the player
+            	spriteplayer.setPosition(2000,600);
+            	
+            	messageText.setString("SQUISHED!!");
+            	FloatRect textRect = messageText.getLocalBounds();
+		messageText.setOrigin(textRect.left + textRect.width/2.0f , textRect.top + textRect.height/2.0);
+		messageText.setPosition(960 , 540);
+            }
+            
+            }
+            
         }//end if paused
         
 	window.clear();
@@ -319,7 +376,7 @@ int main(){
 	window.draw(spriteCloud2);
 	window.draw(spriteCloud3);
 	for(int i=0; i<NUM_BRANCHES ;i++){
-	window.draw(branches[i]);
+		window.draw(branches[i]);
 	}
 	window.draw(spriteplayer);
 	window.draw(spriteTree);
@@ -329,14 +386,13 @@ int main(){
 	window.draw(spriteBee);
 	window.draw(timeBar);
 	if(paused){
-	window.draw(messageText);
+		window.draw(messageText);
 	}
 	window.draw(scoreText);
 	window.display();
 	}
 	return 0;
 }
-
 
 void updateBranches(int seed)
 {
