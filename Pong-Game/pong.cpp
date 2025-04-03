@@ -1,5 +1,7 @@
 #include<SFML/Graphics.hpp>
 #include "Bat.cpp"
+#include "Ball.cpp"
+#include<sstream>
 using namespace sf;
 
 int main(){
@@ -14,6 +16,21 @@ int main(){
 	window.setView(view);
 
 	Bat bat( 900 , 1000 );
+	
+	//ball object
+	Ball ball(960,10);
+	
+	int score = 0;
+	int lives = 3;
+	
+	Text hud;
+	Font font;
+	font.loadFromFile("font/KOMIKAP_.ttf");
+	hud.setFont(font);
+	hud.setCharacterSize(60);
+	hud.setFillColor(Color::White);
+	
+	hud.setPosition(10,10);
 
 	Clock clock;
 
@@ -46,11 +63,20 @@ int main(){
 		Time dt = clock.restart();  //update the delta time
 
 		bat.update(dt);
+		
+		ball.update(dt);
+		
+		std::stringstream ss;   //ued to build a text stream dynamically
+		ss<<"Score: "<<score <<std::endl<<"Lives: "<<lives;
+		hud.setString(ss.str());
 
 		//draw
 		window.clear();
+		window.draw(hud);
 		window.draw(bat.getShape());
+		window.draw(ball.getShape());
 		window.display();
+		
 	}
 	return 0;
 
